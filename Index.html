@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WEXAUR - भारत सर्च</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-image: url('https://images.pexels.com/photos/14267136/pexels-photo-14267136.jpeg');
+      background-size: cover;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: white;
+      text-align: center;
+    }
+    .overlay {
+      background-color: rgba(0, 0, 0, 0.65);
+      min-height: 100vh;
+      padding-bottom: 100px;
+    }
+    header {
+      padding: 20px;
+      font-size: 2em;
+      font-weight: bold;
+      color: orange;
+    }
+    nav {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    nav button {
+      background-color: #ff9933;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .tab {
+      display: none;
+      padding: 20px;
+    }
+    .active {
+      display: block;
+    }
+    .result-box {
+      background-color: rgba(255,255,255,0.2);
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 85%;
+      text-align: left;
+    }
+    input, select {
+      padding: 10px;
+      border-radius: 5px;
+      font-size: 1em;
+      border: none;
+      margin: 10px;
+      width: 70%;
+    }
+    button.action {
+      background: #00cc99;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-top: 10px;
+      color: white;
+      cursor: pointer;
+    }
+    .coin-box {
+      color: #00ffcc;
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+    .quote {
+      font-style: italic;
+      color: #fff7c2;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+<div class="overlay">
+  <header>🇮🇳 WEXAUR - Smart India</header>
+  <nav>
+    <button onclick="showTab('search')">🔍 Search</button>
+    <button onclick="showTab('wallet')">🪙 Wallet</button>
+    <button onclick="showTab('store')">🛍️ Store</button>
+    <button onclick="showTab('usecode')">🎫 Use Code</button>
+    <button onclick="showTab('🇮🇳')">🇮🇳</button>
+  
+</nav>
+
+  <!-- 🔍 Search -->
+  <div class="tab active" id="search">
+    <h2>🔍 Smart Bharat Search</h2>
+    <input type="text" id="query" placeholder="Search anything..." />
+    <br/>
+    <select id="language">
+      <option value="en">English</option>
+      <option value="namste">Rajsthani</option>
+      <option value="hi">Hindi</option>
+    </select>
+    <br/>
+    <button class="action" onclick="searchWexaur()">Search</button>
+    <div class="coin-box" id="rewardCoins">🎉 Wex Coins: 0</div>
+    <div id="results" class="result-box"></div>
+    <div class="result-box">
+      <h3>🔥 Trending Searches</h3>
+      <ul>
+        <li>India Independence Day</li>
+        <li>Chandrayaan 3</li>
+        <li>PM Modi Speech</li>
+        <li>Freedom Fighters</li>
+      </ul>
+    </div>
+    <div class="quote">“Give me blood, and I shall give you freedom.” – Netaji Subhas Chandra Bose</div>
+  </div>
+
+  <!-- 🪙 Wallet -->
+  <div class="tab" id="wallet">
+    <h2>🪙 Wexaur Wallet</h2>
+    <p>Total Coins: <span id="walletCoins">0</span></p>
+    <h3>🎟️ Redeem Coins:</h3>
+    <button onclick="redeemFixed(50)">Redeem 50</button>
+    <button onclick="redeemFixed(100)">Redeem 100</button>
+    <button onclick="redeemFixed(150)">Redeem 150</button>
+    <button onclick="redeemFixed(200)">Redeem 200</button>
+    <p id="redeemResult" style="margin-top:10px; font-weight:bold;"></p>
+  </div>
+
+  <!-- 🛍️ Store -->
+  <div class="tab" id="store">
+    <h2>🛍️ Redeem Store</h2>
+    <p>Use your coins to buy special rewards!</p>
+    <ul>
+      <li>🎁 ₹10 Paytm Cash - <b>100 coins</b> <button onclick="buyItem('₹10 Paytm Cash', 100)">Buy</button></li>
+      <li>🌟 Premium Badge - <b>50 coins</b> <button onclick="buyItem('Premium Badge', 50)">Buy</button></li>
+      <li>🎡 Spin Wheel Chance - <b>30 coins</b> <button onclick="buyItem('Spin Wheel', 30)">Buy</button></li>
+      <li>🖼️ Digital Poster Download - <b>20 coins</b> <button onclick="buyItem('Poster', 20)">Buy</button></li>
+    </ul>
+    <p id="storeMessage" style="font-weight:bold;"></p>
+  </div>
+
+  <!-- 🎫 Use Redeem Code -->
+  <div class="tab" id="usecode">
+    <h2>🎫 Use Redeem Code</h2>
+    <input type="text" id="useCode" placeholder="Enter your code" />
+    <br/>
+    <button class="action" onclick="useRedeemCode()">Use Code</button>
+    <p id="useResult" style="margin-top:10px; font-weight:bold;"></p>
+  </div>
+</div>
+
+<script>
+  let coins = parseInt(localStorage.getItem("wexCoins")) || 0;
+
+  document.addEventListener("DOMContentLoaded", () => {
+    updateCoinsDisplay();
+  });
+
+  function showTab(id) {
+    document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  async function searchWexaur() {
+    const query = document.getElementById("query").value;
+    const lang = document.getElementById("language").value;
+    const resultBox = document.getElementById("results");
+    resultBox.innerHTML = '<b>Loading...</b>';
+
+    try {
+      const wikiRes = await fetch(
+        `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(query)}`
+      );
+      const wikiData = await wikiRes.json();
+
+      const jokeRes = await fetch("https://official-joke-api.appspot.com/jokes/random");
+      const jokeData = await jokeRes.json();
+
+      coins += 1;
+      localStorage.setItem("wexCoins", coins);
+      updateCoinsDisplay();
+
+      resultBox.innerHTML = `
+        <h2>📚 Wikipedia Result</h2>
+        <p><b>${wikiData.title}</b><br>${wikiData.extract}</p>
+        <hr>
+        <h2>😂 Joke Time</h2>
+        <p>${jokeData.setup}<br><i>${jokeData.punchline}</i></p>
+      `;
+    } catch (error) {
+      resultBox.innerHTML = `<p style="color:red">❌ Error fetching data.</p>`;
+    }
+  }
+
+  function updateCoinsDisplay() {
+    document.getElementById("rewardCoins").innerText = `🎉 Wex Coins: ${coins}`;
+    document.getElementById("walletCoins").innerText = coins;
+  }
+
+  function redeemFixed(amount) {
+    const resultText = document.getElementById("redeemResult");
+    if (amount > coins) {
+      resultText.innerText = `❌ You need ${amount} coins.`;
+      return;
+    }
+    coins -= amount;
+    localStorage.setItem("wexCoins", coins);
+    updateCoinsDisplay();
+    const code = `WEX-${amount}-${Math.floor(1000 + Math.random() * 9000)}`;
+    resultText.innerText = `✅ You redeemed ${amount} coins! Code: ${code}`;
+  }
+
+  function buyItem(itemName, itemCost) {
+    const msg = document.getElementById("storeMessage");
+    if (coins < itemCost) {
+      msg.innerText = `❌ Not enough coins for ${itemName}.`;
+      return;
+    }
+    coins -= itemCost;
+    localStorage.setItem("wexCoins", coins);
+    updateCoinsDisplay();
+    msg.innerText = `✅ You bought "${itemName}" successfully!`;
+  }
+
+  function useRedeemCode() {
+    const input = document.getElementById("useCode").value.trim();
+    const result = document.getElementById("useResult");
+    if (!input.startsWith("WEX-")) {
+      result.innerText = "❌ Invalid code.";
+      return;
+    }
+    if (input === "WEX-100-1234") {
+      result.innerText = "🎉 Code applied! Premium Badge unlocked!";
+    } else {
+      result.innerText = "❌ Invalid or used code.";
+    }
+  }
+</script>
+</body>
+</html>
